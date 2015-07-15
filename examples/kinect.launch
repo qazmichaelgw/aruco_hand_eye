@@ -3,10 +3,7 @@
   <arg name="ee_frame"/>
 
   <!-- Bring up a kinect -->
-  <include file="$(find freenect_launch)/launch/freenect.launch">
-    <arg name="publish_tf" value="false"/>
-    <arg name="depth_registration" value="true"/>
-  </include>
+  <include file="$(find realsense_cam)/launch/realsense_cam.launch"/>
 
   <!-- Calibrate the extrinsics for a kinect mounted to a robot base -->
   <include file="$(find aruco_hand_eye)/launch/aruco_hand_eye.launch">
