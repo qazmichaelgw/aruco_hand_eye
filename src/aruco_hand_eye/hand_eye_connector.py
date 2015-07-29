@@ -89,7 +89,7 @@ class HandEyeConnector(object):
         xyz = (ec.translation.x, ec.translation.y, ec.translation.z)
         xyzw = (ec.rotation.x, ec.rotation.y, ec.rotation.z, ec.rotation.w)
         rpy = tuple(PyKDL.Rotation.Quaternion(*xyzw).GetRPY())
-
+        rospy.loginfo("End effector xyz: ( %f %f %f ) rpy: ( %f %f %f ) xyzw: ( %f %f %f %f )" % (xyz+rpy+xyzw))
         F_optical_world = PyKDL.Frame(PyKDL.Rotation.Quaternion(*xyzw), PyKDL.Vector(*xyz))
         F_base_world = F_optical_world * self.F_base_optical
 
@@ -146,10 +146,27 @@ class HandEyeConnector(object):
                 del self.hand_world_samples.transforms[-1]
                 del self.camera_marker_samples.transforms[-1]
                 self.compute_calibration(msg)
+                rospy.loginfo("discard sample...")
             if i == 's':
             	result = self.compute_calibration(msg)
-            	f = open("hand-eye.txt","w")
+            	f = open("/tmp/hand-eye.txt","w")
             	f.write("Result:\n"+str(result))
+                ec = result.effector_camera
+                xyz = (ec.translation.x, ec.translation.y, ec.translation.z)
+                xyzw = (ec.rotation.x, ec.rotation.y, ec.rotation.z, ec.rotation.w)
+                rpy = tuple(PyKDL.Rotation.Quaternion(*xyzw).GetRPY())
+                f.write("\nEnd effector xyz: ( %f %f %f ) rpy: ( %f %f %f ) xyzw: ( %f %f %f %f )" % (xyz+rpy+xyzw))
+                F_optical_world = PyKDL.Frame(PyKDL.Rotation.Quaternion(*xyzw), PyKDL.Vector(*xyz))
+                F_base_world = F_optical_world * self.F_base_optical
+
+                bw = tfconv.toMsg(F_base_world)
+                xyz = (bw.position.x, bw.position.y, bw.position.z)
+                xyzw = (bw.orientation.x, bw.orientation.y, bw.orientation.z, bw.orientation.w)
+                rpy = tuple(PyKDL.Rotation.Quaternion(*xyzw).GetRPY())
+
+                f.write("\nBase xyz: ( %f %f %f ) rpy: ( %f %f %f ) xyzw: ( %f %f %f %f )" % (xyz+rpy+xyzw))
+                f.close()
+                rospy.loginfo("save results...")
             raw_input('Hit [enter] to capture the next sample...')
         else:
             self.rate.sleep()
