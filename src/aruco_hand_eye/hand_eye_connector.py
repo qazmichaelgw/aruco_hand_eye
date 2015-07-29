@@ -141,11 +141,15 @@ class HandEyeConnector(object):
 
         # interactive
         if self.interactive:
-            i = raw_input('Hit [enter] to accept this latest sample, or `d` to discard: ')
+            i = raw_input('Hit [enter] to accept this latest sample, or `d` to discard: , or `s` to save to file!')
             if i == 'd':
                 del self.hand_world_samples.transforms[-1]
                 del self.camera_marker_samples.transforms[-1]
                 self.compute_calibration(msg)
+            if i == 's':
+            	result = self.compute_calibration(msg)
+            	f = open("hand-eye.txt","w")
+            	f.write("Result:\n"+str(result))
             raw_input('Hit [enter] to capture the next sample...')
         else:
             self.rate.sleep()
